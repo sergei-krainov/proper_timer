@@ -15,11 +15,6 @@ static void timer_routine(unsigned long data)
 {	
 	printk(KERN_INFO "Timer called (%ld).\n", jiffies);
 	mod_timer(&c_timer, jiffies + msecs_to_jiffies(tv * 1000));
-	
-	if (tv == 0) {
-		del_timer(&c_timer);
-		printk(KERN_INFO "Timer stopped\n");
-	}
 }
 
 static ssize_t tv_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
@@ -30,6 +25,14 @@ static ssize_t tv_show(struct kobject *kobj, struct kobj_attribute *attr, char *
 static ssize_t tv_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	sscanf(buf, "%du", &tv);
+	if (tv == 0) {
+		del_timer(&c_timer);
+		printk(KERN_INFO "Timer stopped\n");
+	}
+	else {		
+		mod_timer(&c_timer, jiffies + msecs_to_jiffies(tv * 1000));
+	}
+	
 	return count;
 }
 
